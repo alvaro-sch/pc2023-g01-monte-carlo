@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 void photon(const struct photon_params params, float *heat, float *heat2) {
-    const float albedo = params.mu_a / (params.mu_s + params.mu_a);
+    const float albedo = params.mu_s / (params.mu_s + params.mu_a);
     const float shells_per_mfp =
         1e4 / params.microns_per_shell / (params.mu_a + params.mu_s);
 
