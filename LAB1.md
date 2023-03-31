@@ -40,7 +40,7 @@ Note that this metric is size-independant because it is an average.
 
 ### Compiler flags
 
-(decidir flags, pero seguro al menos `-O2 -ffast-math`)
+The set of flags we decided to use were `-O2 -DNDEBUG -march=native -ffast-math -funroll-loops`.
 
 ### prng
 

@@ -6,9 +6,9 @@ LDFLAGS = -lm
 T ?= debug
 
 ifeq ($T,release)
-CFLAGS += -O3 -DNDEBUG
+CFLAGS += -O2 -DNDEBUG -march=native -ffast-math -funroll-loops
 else ifeq ($T,debug)
-CFLAGS += -g -O0 -DDEBUG
+CFLAGS +=
 else
 $(error invalid mode $T)
 endif
@@ -26,7 +26,7 @@ fmt:
 	clang-format -i src/*
 
 $T_%.o: src/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@
 
 $(TARGET): $(OBJECT)
 	$(CC) $(OBJECT) -o $(TARGET) $(CFLAGS) $(LDFLAGS)
