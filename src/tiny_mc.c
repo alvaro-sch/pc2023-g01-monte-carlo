@@ -8,6 +8,7 @@
 #include "params.h"
 #include "photon.h"
 #include "wtime.h"
+#include "xoshiro.h"
 
 typedef unsigned long ulong;
 
@@ -33,6 +34,7 @@ int main(int argc, char *argv[]) {
     float mu_s = strtof(argv[4], NULL);
 
     srand(seed);
+    xoshiro_set_seed((uint32_t[4]){rand(), rand(), rand(), rand()});
 
     const struct photon_params params = {
         .microns_per_shell = microns_per_shell,
