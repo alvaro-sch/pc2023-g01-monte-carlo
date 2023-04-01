@@ -19,7 +19,7 @@ void xoshiro_set_seed(uint32_t seed[4]) {
 // xoshiro128+ specially optimized for generating floating point numbers
 // source https://prng.di.unimi.it/xoshiro128plus.c
 float xoshiro_next_f32() {
-    uint32_t x = s[0] + s[3];
+    const uint32_t x = UINT32_C(0x7F) << 23 | (s[0] + s[3]) >> 9;
 
     const uint32_t t = s[1] << 9;
 
@@ -31,8 +31,6 @@ float xoshiro_next_f32() {
     s[2] ^= t;
 
     s[3] = rotl(s[3], 11);
-
-    x = UINT32_C(0x7F) << 23 | x >> 9;
 
     float result;
     memcpy(&result, &x, sizeof(result));
