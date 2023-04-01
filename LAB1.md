@@ -20,11 +20,11 @@ All the benchmarks were done in the following system:
 | L3 | 256 MiB (8 instances) |
 | Max Frequency | 3640.9170 MHz |
 
-| CCs |
-| - |
-| gcc 12.2.0 |
-| clang 15.0.6 |
-| icx 2023.0.0 |
+| CC | Linker |
+| - | - |
+| gcc 12.2.0 | ld 2.40 |
+| clang 17.0.0 | lld 17.0.0 |
+| icx 2023.0.0 | ld 2.40 |
 
 ## Metrics
 
@@ -36,11 +36,18 @@ of a photon has a random factor in it.
 
 Note that this metric is size-independant because it is an average.
 
-## Optimizations
+## Compiler flags
 
-### Compiler flags
+The set of compiler flags used were `-O2 -DNDEBUG -march=native -ffast-math -funroll-loops`.
 
-The set of flags we decided to use were `-O2 -DNDEBUG -march=native -ffast-math -funroll-loops`.
+For *clang* we additionaly use `-flto=thin` which is exclusive to *clang*
+with *lld.ld* linker enabled using `-fuse-ld=lld` at link time.
+
+(Mostrar resultados de correr el código sin optimizaciones en todos los compiladores)
+
+From now on every graph showcasing benchmark has all flags above enabled.
+
+## Code Optimizations
 
 ### prng
 
@@ -49,9 +56,8 @@ concerning performance and randomness, someone initially may think that
 it would probably be too fast to care, but some implementations have a few
 obscure shenanigans, like [the possibility of calling malloc](https://www.thingsquare.com/blog/articles/rand-may-call-malloc/).
 
-We compared C's prng agains other 2 well known prngs: *splitmix64* and
-*xoshiro* doing 10 rounds of generating 10 million numbers, the
-results were the following.
+C's `rand()` was compared against 2 other well-known prngs: *splitmix64*
+and *xoshiro*
 
 | prng | seconds |
 | - | - |
@@ -61,14 +67,33 @@ results were the following.
 
 For being the fastest, we chose to replace C's `rand()` with xoshiro.
 
-The previous isolated benchmarks were done with one specific version
-of xoshiro which is made for generating 64 bit random integers.
-However, we can do better, for generating floats in the range [0, 1],
-instead of dividing the result by the maximum possible number, manually
-construct the floating point number with it, like so.
+After replacing `rand()` with a suitable version of xoshiro(128\*\*)
+the speed of the simulation increased significantly.
+
+(rand vs RAND_XOSHIROI)
+
+However the reference page for xoshiro prngs suggest yet another
+optimization, this time for generating numbers in [0, 1] specifically.
+
+1. Create an IEEE-754 "float" number using the top bits of the random
+number *x* as the mantissa, 0 as the sign and all 1s as the exponent, this
+is done in a 32 bit integer because that level of bit manipulation cannot
+be done with floats.
+
+1. Store the result as a float, in this specific case type-casting will not
+work because floats and integers are encoded differently, and type-casting
+will convert between the encodings, to prevent that `memcpy()` is used to
+just copying the bits without doing conversions.
+
+1. Subtract 1 from the result because the previous steps generate a number
+in [1, 2].
+
+The final code looked like this.
 
 ```c
-x = UINT32_C(0x7F) << 23 | x >> 9;
+const uint32_t x = UINT32_C(0x7F) << 23 | (s[0] + s[3]) >> 9;
+
+/* roll the seed */
 
 float result;
 memcpy(&result, &x, sizeof(result));
@@ -76,23 +101,9 @@ memcpy(&result, &x, sizeof(result));
 return result - 1.0;
 ```
 
-That rather confusing code snippet does the following:
+And the results were the following.
 
-1. It creates an IEEE-754 "float" number using the top bits of the random
-number *x* as the mantissa, 0 as the sign and all 1s as the exponent, this
-is done in a 32 bit integer because that level of bit manipulation cannot
-be done with floats.
-
-1. Using `memcpy()` instead of just asigning `x` to the result seems
-confusing, but that's actually required. Since *float*s and *int*s have
-different bit representations, assignments will change them so that the
-number they represent "match", `memcpy()` just copies the bits, skipping
-the unwanted conversion.
-
-1. The result of the previous steps will create a number in [1, 2],
-so we just subtract 1 to get a random number in [0, 1].
-
-(insertar resultados de original | cambiar prng | usar la técnica cheta)
+(RAND_XOSHIROI vs RAND_XOSHIROF)
 
 ### fpdiv vs fpmul
 
@@ -141,10 +152,10 @@ didn't.
     1609:	f3 0f 11 45 d4       	    movss  DWORD PTR [rbp-0x2c],xmm0
 ```
 
-So we manually replaced that in the source code. The results were the
-following.
+So the division was manually replaced that in the source code.
+The results were the following.
 
-(insertar imagen de div vs mult)
+(div vs mult)
 
 ## Putting all together
 
