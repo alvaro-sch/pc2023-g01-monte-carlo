@@ -68,29 +68,29 @@ instead of dividing the result by the maximum possible number, manually
 construct the floating point number with it, like so.
 
 ```c
-union {
-    uint32_t i;
-    float f;
-} result = { .i = UINT32_C(0x7F) << 23 | x >> 9 };
+x = UINT32_C(0x7F) << 23 | x >> 9;
 
-return result.f - 1.0;
+float result;
+memcpy(&result, &x, sizeof(result));
+
+return result - 1.0;
 ```
 
 That rather confusing code snippet does the following:
 
-1. It creates an IEEE-754 number using the top bits of the random number
-*x* as the mantissa, setting sign to 0 and exponent to all 1s, this is
-done in a 32 bit integer because that level of bit manipulation cannot be
-done in floats.
+1. It creates an IEEE-754 "float" number using the top bits of the random
+number *x* as the mantissa, 0 as the sign and all 1s as the exponent, this
+is done in a 32 bit integer because that level of bit manipulation cannot
+be done with floats.
 
-1. We need that result as a float, but that cannot be done directly
-because casting will **convert** the integer to a float, but we actually
-want to **interpret** the bits as a float, that's done with the union, it
-essentially stores both the int and the float in the same place, we write
-it as an int, but read it as a float, just doing that avoids conversion.
+1. Using `memcpy()` instead of just asigning `x` to the result seems
+confusing, but that's actually required. Since *float*s and *int*s have
+different bit representations, assignments will change them so that the
+number they represent "match", `memcpy()` just copies the bits, skipping
+the unwanted conversion.
 
 1. The result of the previous steps will create a number in [1, 2],
-so we just subtract 1 from it to get a random number in [0, 1].
+so we just subtract 1 to get a random number in [0, 1].
 
 (insertar resultados de original | cambiar prng | usar la técnica cheta)
 
@@ -137,7 +137,7 @@ didn't.
             weight /= 0.1f;
     15f8:	f3 0f 10 45 d4       	    movss  xmm0,DWORD PTR [rbp-0x2c]
     15fd:	f3 0f 10 0d 2f 0a 00 00 	movss  xmm1,DWORD PTR [rip+0xa2f]        # 2034 <_IO_stdin_used+0x34>
-    1605:	f3 0f 5e c1          	 >> divss  xmm0,xmm1 << division spotted
+    1605:	f3 0f 5e c1          	 >> divss  xmm0,xmm1 << division here
     1609:	f3 0f 11 45 d4       	    movss  DWORD PTR [rbp-0x2c],xmm0
 ```
 

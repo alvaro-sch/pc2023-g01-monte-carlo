@@ -1,6 +1,7 @@
 #include "xoshiro.h"
 
 #include <stdint.h>
+#include <string.h>
 
 static uint32_t s[4];
 
@@ -18,7 +19,7 @@ void xoshiro_set_seed(uint32_t seed[4]) {
 // xoshiro128+ specially optimized for generating floating point numbers
 // source https://prng.di.unimi.it/xoshiro128plus.c
 float xoshiro_next_f32() {
-    const uint32_t x = s[0] + s[3];
+    uint32_t x = s[0] + s[3];
 
     const uint32_t t = s[1] << 9;
 
@@ -31,15 +32,12 @@ float xoshiro_next_f32() {
 
     s[3] = rotl(s[3], 11);
 
-    // creates a IEEE-754 floating point number using integer bitwise operations
-    // and interprets the result as a floating point number (casting would not
-    // work)
-    union {
-        uint32_t i;
-        float f;
-    } result = {.i = UINT32_C(0x7F) << 23 | x >> 9};
+    x = UINT32_C(0x7F) << 23 | x >> 9;
 
-    return result.f - 1.0;
+    float result;
+    memcpy(&result, &x, sizeof(result));
+
+    return result - 1.0;
 }
 
 // xoshiro128** unused in this simulation, but useful for comparrison vs

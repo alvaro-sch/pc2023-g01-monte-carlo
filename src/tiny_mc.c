@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 
     double elapsed = end - start;
 
-    printf("# %lf seconds\n", elapsed);
+    printf("%lf\n", elapsed);
     printf("# %lf K photons per second\n", 1e-3 * photons / elapsed);
 
     printf("# Radius\tHeat\n");
