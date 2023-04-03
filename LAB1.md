@@ -2,9 +2,7 @@
 
 This document
 
-## Hardware
-
-All the benchmarks were done in the following system:
+## Host Machine
 
 | OS |
 | - |
@@ -141,7 +139,7 @@ replace the division, which must have something to do with the edge cases
 previously mentioned.
 
 With that we were almost convinced that the compiler would optimize that
-line for us using flags such as `-O3 -ffast-math` but it turned out it
+line for us using flags such as `-O2 -ffast-math` but it turned out it
 didn't.
 
 ```

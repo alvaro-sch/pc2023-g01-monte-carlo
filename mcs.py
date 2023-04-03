@@ -1,7 +1,7 @@
 import sys
 import subprocess
 
-CCS = ["gcc", "clang", "icc"]
+CCS = ["gcc", "clang", "icx"]
 DEFS = "-DNDEBUG -DRAND_XOSHIROF"
 
 # common
@@ -12,12 +12,12 @@ LDFLAGS = ""
 EXC_CFLAGS = {
     "gcc": "",
     "clang": "-flto=thin",
-    "icc": "",
+    "icx": "",
 }
 EXC_LDFLAGS = {
     "gcc": "",
     "clang": "-fuse-ld=lld",
-    "icc": "",
+    "icx": "",
 }
 
 def make():
@@ -40,10 +40,8 @@ def bench():
 
     avg = lambda f, x, n: sum(f(x) for i in range(n)) / n
 
-    averages = dict((cc, avg(run, cc, 10) * 1.3) for cc in CCS[:2])
-
-    for cc, time in averages.items():
-        print(f"{cc}, {time}")
+    for cc in CCS:
+        print(f"{cc}, {avg(run, cc, 10)}")
 
 def main(argv):
     if len(argv) < 2:
