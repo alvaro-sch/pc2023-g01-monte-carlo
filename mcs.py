@@ -1,5 +1,9 @@
+import os
 import sys
 import subprocess
+
+LABEL = os.getenv("LABEL") or "unnamed"
+PHOTON_COUNT = os.getenv("PHOTON_COUNT") or "32768"
 
 CCS = ["gcc", "clang", "icx"]
 DEFS = "-DNDEBUG -DRAND_XOSHIROF"
@@ -30,7 +34,7 @@ def make():
             f'EXT_LDFLAGS={LDFLAGS} {EXC_LDFLAGS[cc]}',
         ])
 
-DEFAULT_PARAMS = ["101", "32768", "2.0", "20.0", "50", "0"]
+DEFAULT_PARAMS = ["101", PHOTON_COUNT, "2.0", "20.0", "50", "0"]
 
 def bench():
     run = lambda prog: float(subprocess.run(
@@ -41,11 +45,14 @@ def bench():
     avg = lambda f, x, n: sum(f(x) for i in range(n)) / n
 
     for cc in CCS:
-        print(f"{cc}, {avg(run, cc, 10)}")
+        total_time = avg(run, cc, 10)
+        photon_time = total_time / float(PHOTON_COUNT)
+        print(f"{LABEL},{cc},{total_time},{photon_time}")
 
 def main(argv):
     if len(argv) < 2:
         print(f"usage: {argv[0]} <make | bench>")
+        exit(1)
 
     match argv[1]:
         case "make":
