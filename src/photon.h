@@ -5,5 +5,8 @@ struct photon_params {
     unsigned shells, microns_per_shell;
 };
 
-void photon(const struct photon_params params, float *heats,
-            float *heats_squared);
+struct shell_heat {
+    float heat, heat_squared;
+};
+
+void photon(const struct photon_params params, struct shell_heat *heats);
