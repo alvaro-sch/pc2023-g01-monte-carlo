@@ -157,13 +157,13 @@ The results were the following.
 
 ## Putting all together
 
-Some tests were made by running the simulation 100 times and computing the average time taken per photon and the standard deviation. In every test the compiler, their optimization flags and the randomizer were changed. The compilers used were GCC, CLANG and ICX. Their used flags were 
+Some tests were made by running the simulation 100 times and computing the average time taken per photon and the standard deviation. In every test the compiler, their optimization flags and the randomizer were changed. The compilers used were GCC, CLANG and ICX. Their used flags were :
 ```
 -DNDEBUG -Y -X -march=native -ffast-math -funroll-loops "
 ```
-Were ```-X ``` stands for ```-O0```, ```-O1``` , ```-O2``` , ```-O3``` and ```-Ofast``` along with ```-Y``` which stands for the tested randomizers  ```-XOSHIROF```, ```-XOSHIROI``` and ```rand```.
+Were ```-X ``` stands for ```-O0```, ```-O1``` , ```-O2``` , ```-O3``` and ```-Ofast``` along with ```-Y``` which stands for the tested randomizers  ```-XOSHIROF```, ```-XOSHIROI``` and ```rand```. In addition to that, some tests were made without using compiler flags at all, that's it, the vanilla performance of the simulation.
 
-The results are shown in the following barplots.
+The results are shown in the following barplots:
 
 ![alt text](./img/barplot.png)
 
@@ -171,5 +171,6 @@ The results are shown in the following barplots.
 
 ![alt text](./img/barplot_edit_only_O2.png)
 
+It's interesting to note that using the ```rand``` randomizer caps the speed of the simulation beyond ```-O0``` optimization flags, for each compiler tested. 
 
-(before vs after con todo)
+
