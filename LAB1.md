@@ -157,7 +157,7 @@ The results were the following.
 
 ## Putting all together
 
-Some tests were made by running the simulation 100 times and computing the average time taken per photon and the standard deviation. In every test the compiler, their optimization flags and the randomizer were changed. The compilers used were GCC, CLANG and ICX. Their used flags were :
+Some tests were made by running the simulation 100 times and computing the average time taken per photon and the standard deviation. In every test the compiler, their optimization flags and the randomizer were changed. The compilers used were GCC, CLANG and ICX. The set of used flags were:
 ```
 -DNDEBUG -Y -X -march=native -ffast-math -funroll-loops 
 ```
