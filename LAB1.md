@@ -167,6 +167,9 @@ The results are shown in the following barplots.
 
 ![alt text](./img/barplot.png)
 
+![alt text](./img/barplot_edit.png)
+
+![alt text](./img/barplot_edit_only_O2.png)
 
 
 (before vs after con todo)
