@@ -1,3 +1,4 @@
+import math
 import os
 import sys
 import subprocess
@@ -42,12 +43,17 @@ def bench():
         capture_output=True
     ).stdout.split(b'\n')[0])
 
-    avg = lambda f, x, n: sum(f(x) for i in range(n)) / n
+    avg = lambda xs: sum(x for x in xs) / len(xs)
+    var = lambda xs, mean: sum((x - mean)**2 for x in xs) / len(xs)
 
     for cc in CCS:
-        total_time = avg(run, cc, 10)
-        photon_time = total_time / float(PHOTON_COUNT)
-        print(f"{LABEL},{cc},{total_time},{photon_time}")
+        samples = list(run(cc) for _ in range(10))
+
+        mean_time = avg(samples)
+        mean_photon_time = mean_time / float(PHOTON_COUNT)
+        std_dev = math.sqrt(var(samples, mean_time))
+
+        print(f"{LABEL},{cc},{mean_time},{mean_photon_time},{std_dev}")
 
 def main(argv):
     if len(argv) < 2:
