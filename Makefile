@@ -6,20 +6,30 @@ LDFLAGS = -lm
 SOURCE = $(wildcard src/*.c)
 OBJECT = $(SOURCE:src/%.c=$(CC)_%.o)
 
-TARGET = $(CC).out
+HEADLESS_OBJECT = $(OBJECT:$(CC)_main_dcgi.o=)
+DCGI_OBJECT = $(OBJECT:$(CC)_main_headless.o=)
 
-.PHONY: clean
+HEADLESS = $(CC)_headless.out
+DCGI = $(CC)_dcgi.out
 
-all: $(TARGET)
+.PHONY: clean fmt
 
-fmt:
-	clang-format -i src/*
+all: $(HEADLESS) $(DCGI)
+
+headless: $(HEADLESS)
+dcgi: $(DCGI)
 
 $(CC)_%.o: src/%.c
 	$(CC) $(CFLAGS) $(EXT_CFLAGS) $(DEFS) -c $< -o $@
 
-$(TARGET): $(OBJECT)
-	$(CC) $(OBJECT) -o $(TARGET) $(LDFLAGS) $(EXT_LDFLAGS)
+$(HEADLESS): $(HEADLESS_OBJECT)
+	$(CC) $(HEADLESS_OBJECT) -o $(HEADLESS) $(LDFLAGS) $(EXT_LDFLAGS)
+
+$(DCGI): $(DCGI_OBJECT)
+	$(CC) $(DCGI_OBJECT) -o $(DCGI) $(LDFLAGS) $(EXT_LDFLAGS)
+
+fmt:
+	clang-format -i src/*
 
 clean:
 	-rm *.o *.out

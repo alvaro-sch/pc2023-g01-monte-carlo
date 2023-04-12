@@ -29,6 +29,7 @@ def make():
     for cc in CCS:
         subprocess.run([
             'make',
+            'headless',
             f'CC={cc}',
             f'DEFS={DEFS}',
             f'EXT_CFLAGS={CFLAGS} {EXC_CFLAGS[cc]}',
@@ -39,7 +40,7 @@ DEFAULT_PARAMS = ["101", PHOTON_COUNT, "2.0", "20.0", "50", "0"]
 
 def bench():
     run = lambda prog: float(subprocess.run(
-        [f'./{prog}.out'] + DEFAULT_PARAMS,
+        [f'./{prog}_headless.out'] + DEFAULT_PARAMS,
         capture_output=True
     ).stdout.split(b'\n')[0])
 
@@ -47,7 +48,7 @@ def bench():
     var = lambda xs, mean: sum((x - mean)**2 for x in xs) / len(xs)
 
     for cc in CCS:
-        samples = list(run(cc) for _ in range(10))
+        samples = list(run(cc) for _ in range(100))
 
         mean_time = avg(samples)
         mean_photon_time = mean_time / float(PHOTON_COUNT)
