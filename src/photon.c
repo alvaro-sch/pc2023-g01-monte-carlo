@@ -13,7 +13,7 @@
 #define get_rand() (rand() / (float)RAND_MAX)
 #endif
 
-void photon(const struct photon_params params, struct shell_heat *heats) {
+void photon(const struct photon_params params, float *heats, float *heats_squared) {
     const float albedo = params.mu_s / (params.mu_s + params.mu_a);
     const float shells_per_mfp =
         1e4 / params.microns_per_shell / (params.mu_a + params.mu_s);
@@ -41,8 +41,8 @@ void photon(const struct photon_params params, struct shell_heat *heats) {
         }
 
         float inter_heat = (1.0f - albedo) * weight;
-        heats[shell].heat += inter_heat;
-        heats[shell].heat_squared += inter_heat * inter_heat;
+        heats[shell] += inter_heat;
+        heats_squared[shell] += inter_heat * inter_heat;
 
         weight *= albedo;
 

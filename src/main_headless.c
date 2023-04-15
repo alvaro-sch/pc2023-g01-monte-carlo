@@ -43,11 +43,12 @@ int main(int argc, char *argv[]) {
         .mu_s = mu_s,
     };
 
-    struct shell_heat *heats = calloc(shells, sizeof(*heats));
+    float *heats = calloc(shells, sizeof(*heats));
+    float *heats2 = calloc(shells, sizeof(*heats2));
 
     double start = wtime();
     for (unsigned int i = 0; i < photons; ++i) {
-        photon(params, heats);
+        photon(params, heats, heats2);
     }
     double end = wtime();
 
@@ -67,13 +68,13 @@ int main(int argc, char *argv[]) {
         float vol = i * i + i + 1.0 / 3.0;
 
         printf("%6.0f\t%12.5f\t%12.5f\n", i * (float)microns_per_shell,
-               heats[i].heat / t / vol,
-               sqrt(heats[i].heat_squared -
-                    heats[i].heat * heats[i].heat / photons) /
+               heats[i] / t / vol,
+               sqrt(heats2[i] -
+                    heats[i] * heats[i] / photons) /
                    t / vol);
     }
 
-    printf("# extra\t%12.5f\n", heats[shells - 1].heat / photons);
+    printf("# extra\t%12.5f\n", heats[shells - 1] / photons);
 
     free(heats);
 

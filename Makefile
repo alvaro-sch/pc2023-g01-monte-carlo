@@ -3,6 +3,8 @@ CC ?= gcc
 CFLAGS = -Wall -Wextra -std=c17 -Isrc
 LDFLAGS = -lm
 
+DCGI_LDFLAGS = `pkg-config --libs sdl2 glew`
+
 SOURCE = $(wildcard src/*.c)
 OBJECT = $(SOURCE:src/%.c=$(CC)_%.o)
 
@@ -26,7 +28,7 @@ $(HEADLESS): $(HEADLESS_OBJECT)
 	$(CC) $(HEADLESS_OBJECT) -o $(HEADLESS) $(LDFLAGS) $(EXT_LDFLAGS)
 
 $(DCGI): $(DCGI_OBJECT)
-	$(CC) $(DCGI_OBJECT) -o $(DCGI) $(LDFLAGS) $(EXT_LDFLAGS)
+	$(CC) $(DCGI_OBJECT) -o $(DCGI) $(LDFLAGS) $(EXT_LDFLAGS) $(DCGI_LDFLAGS)
 
 fmt:
 	clang-format -i src/*
