@@ -25,7 +25,7 @@ GLuint compile_shader(struct shader_params params) {
     return shader;
 }
 
-GLuint create_program(size_t shader_count, struct shader_params *shader_params) {
+GLuint create_program(size_t shader_count, const struct shader_params *shader_params) {
     GLuint *shaders = calloc(shader_count, sizeof(*shaders));
 
     for (size_t i = 0; i < shader_count; ++i) {
