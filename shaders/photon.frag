@@ -1,29 +1,30 @@
 #version 460
 
-#define SHELL_STEP 140.0
+#define SHELL_STEP 250.0
 
 out vec4 frag_color;
 
 layout(location = 0) uniform ivec2 screen;
 
-layout(std430, binding = 0) readonly buffer ssbo {
-    float heats[];
-} sparams;
+layout(std430, binding = 0) readonly buffer c_ssbo {
+    vec4 color[];
+} colormap;
 
-float circle(vec2 offset, float radius, float dim) {
-    return smoothstep(radius * (1.0 - dim), radius, length(offset));
-}
+layout(std430, binding = 1) readonly buffer s_ssbo {
+    float heats[];
+} shells;
 
 void main() {
     vec2 uv = gl_FragCoord.xy / vec2(screen);
 
     float dr = length(uv - vec2(0.5));
 
-    int heat_id = clamp(int(dr * SHELL_STEP), 0, sparams.heats.length());
-    float heat = sparams.heats[heat_id];
+    int heat_id = clamp(int(dr * SHELL_STEP), 0, shells.heats.length() - 1);
 
-    //vec3 color = mix(vec3(heat / 50.0, 0.0, 0.0), vec3(0.0), circle(uv - vec2(0.5), 0.25, 0.2));
-    vec3 color = vec3(heat / 100.0, 0.0, 0.0);
+    float heat = shells.heats[heat_id];
+    float heat_fit = 2.0 / (1.0 + exp(-heat * 0.04)) - 1.0;
 
-    frag_color = vec4(color, 1.0);
+    int c_id = int(mix(0.0, float(colormap.color.length() - 1), heat_fit));
+
+    frag_color = colormap.color[c_id];
 }

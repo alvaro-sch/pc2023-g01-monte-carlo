@@ -18,7 +18,7 @@
 
 #define MAX_FRAME_TIME ((double) 1.0 / TARGET_FPS)
 
-#define SHELL_COUNT 101
+#define SHELL_COUNT 300
 #define PHOTON_CAP  1<<16
 
 static bool should_quit;
@@ -33,7 +33,11 @@ static struct photon_params params = {
     .microns_per_shell = 50,
 };
 
-void handle_event(SDL_Event *event) {
+const static float colormap[] = {
+    #include "inferno512.cmap"
+};
+
+void handle_event(const SDL_Event *event) {
     switch (event->type) {
     case SDL_QUIT:
         should_quit = true;
@@ -56,7 +60,7 @@ void handle_event(SDL_Event *event) {
     case SDL_KEYDOWN:
         switch(event->key.keysym.scancode) {
         case SDL_SCANCODE_R:
-            memset(heats, 0, SHELL_COUNT * sizeof(*heats));
+            memset(heats, 0, sizeof(heats));
             remaining_photons = PHOTON_CAP;
             break;
 
@@ -85,8 +89,8 @@ void update(double delta) {
         photon(params, heats, _heats2);
 
         double t1 = wtime();
-        delta -= t1 - t0;
-        t1 = wtime();
+        delta += t1 - t0;
+        t0 = t1;
     }
 
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, SHELL_COUNT * sizeof(*heats), heats);
@@ -96,7 +100,7 @@ int main() {
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     SDL_Window *window = SDL_CreateWindow(
@@ -134,12 +138,18 @@ int main() {
 
     SDL_ShowWindow(window);
 
-    GLuint ssbo;
-    glGenBuffers(1, &ssbo);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
+    GLuint ssbos[2];
+    glGenBuffers(2, ssbos);
 
-    glBufferData(GL_SHADER_STORAGE_BUFFER, SHELL_COUNT * sizeof(*heats), heats, GL_DYNAMIC_DRAW);
+    // colormap: written only once
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbos[0]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbos[0]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(colormap), colormap, GL_STATIC_DRAW);
+
+    // heat per shell: written almost every frame
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbos[1]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbos[1]);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(heats), heats, GL_DYNAMIC_DRAW);
 
     double t0 = wtime();
     should_quit = false;
@@ -157,12 +167,13 @@ int main() {
 
         update(delta);
 
+        glClear(GL_COLOR_BUFFER_BIT);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         SDL_GL_SwapWindow(window);
     }
 
-    glDeleteBuffers(1, &ssbo);
+    glDeleteBuffers(2, ssbos);
     glDeleteVertexArrays(1, &vao);
     glDeleteProgram(shader);
 
