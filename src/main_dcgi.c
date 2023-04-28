@@ -6,7 +6,6 @@
 
 #include "photon.h"
 #include "shader.h"
-#include "wtime.h"
 
 #ifndef MAX_PHOTONS_PER_FRAME
 #define MAX_PHOTONS_PER_FRAME 20
@@ -74,29 +73,24 @@ void handle_event(const SDL_Event *event) {
     }
 }
 
-void update(double delta) {
+void update(void) {
     if (remaining_photons <= 0) {
         return;
     }
 
-    double t0 = wtime();
     int remaining_photons_in_frame = MAX_PHOTONS_PER_FRAME;
 
-    while (remaining_photons > 0 && remaining_photons_in_frame > 0 && delta <= MAX_FRAME_TIME) {
+    while (remaining_photons > 0 && remaining_photons_in_frame > 0) {
         --remaining_photons;
         --remaining_photons_in_frame;
 
         photon(params, heats, _heats2);
-
-        double t1 = wtime();
-        delta += t1 - t0;
-        t0 = t1;
     }
 
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, SHELL_COUNT * sizeof(*heats), heats);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(heats), heats);
 }
 
-int main() {
+int main(void) {
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -151,7 +145,6 @@ int main() {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbos[1]);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(heats), heats, GL_DYNAMIC_DRAW);
 
-    double t0 = wtime();
     should_quit = false;
     remaining_photons = PHOTON_CAP;
 
@@ -161,11 +154,7 @@ int main() {
             handle_event(&event);
         }
 
-        double t1 = wtime();
-        double delta = t1 - t0;
-        t0 = t1;
-
-        update(delta);
+        update();
 
         glClear(GL_COLOR_BUFFER_BIT);
         glDrawArrays(GL_TRIANGLES, 0, 6);
