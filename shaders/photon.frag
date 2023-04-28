@@ -24,7 +24,7 @@ void main() {
     float heat = shells.heats[heat_id];
     float heat_fit = 2.0 / (1.0 + exp(-heat * 0.02)) - 1.0;
 
-    int c_id = int(mix(0.0, float(colormap.color.length() - 1), heat_fit));
+    int c_id = int(float(colormap.color.length() - 1) * heat_fit);
 
     frag_color = colormap.color[c_id];
 }
