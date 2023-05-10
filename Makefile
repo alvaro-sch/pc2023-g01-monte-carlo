@@ -12,6 +12,7 @@ OBJECT = $(SOURCE:src/%.c=$(CC)_%.o)
 SHADER_OBJ = $(SHADER_SRC:shaders/%=%.o)
 
 HEADLESS_OBJECT = $(OBJECT:$(CC)_main_dcgi.o=)
+HEADLESS_OBJECT := $(HEADLESS_OBJECT:$(CC)_shader.o=)
 DCGI_OBJECT = $(OBJECT:$(CC)_main_headless.o=) $(SHADER_OBJ)
 
 HEADLESS = $(CC)_headless.out
