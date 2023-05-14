@@ -1,5 +1,3 @@
-CC ?= gcc
-
 CFLAGS = -Wall -Wextra -std=c17 -Isrc
 LDFLAGS = -lm
 

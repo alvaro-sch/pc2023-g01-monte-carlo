@@ -6,7 +6,7 @@ import subprocess
 LABEL = os.getenv("LABEL") or "unnamed"
 PHOTON_COUNT = os.getenv("PHOTON_COUNT") or "32768"
 
-CCS = ["gcc", "clang", "icx"]
+CCS = ["gcc", "clang", "icx", "icc"]
 DEFS = "-DNDEBUG -DRAND_XOSHIROF"
 
 # common
@@ -15,14 +15,16 @@ LDFLAGS = ""
 
 # exclusive
 EXC_CFLAGS = {
-    "gcc": "",
-    "clang": "-flto=thin",
-    "icx": "",
+    "gcc": "-fopt-info-vec -fopt-info-vec-missed",
+    "clang": "-flto=thin -Rpass=vectorize -Rpass-missed -Rpass-analysis",
+    "icx": "-flto=thin -Rpass=vectorize -Rpass-missed -Rpass-analysis",
+    "icc": "-diag-disable=10441 -qopt-report-stdout -qopt-report-per-object",
 }
 EXC_LDFLAGS = {
     "gcc": "",
     "clang": "-fuse-ld=lld",
-    "icx": "",
+    "icx": "-fuse-ld=lld",
+    "icc": "-diag-disable=10441",
 }
 
 def make():
