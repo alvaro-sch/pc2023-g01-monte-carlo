@@ -1,6 +1,7 @@
 #version 460
 
-#define SHELL_STEP 250.0
+// #define SHELL_STEP 250.0
+#define MC 0.7071067811865476f
 
 out vec4 frag_color;
 
@@ -19,7 +20,7 @@ void main() {
 
     float dr = length(uv - vec2(0.5));
 
-    int heat_id = clamp(int(dr * SHELL_STEP), 0, shells.heats.length() - 1);
+    int heat_id = int((dr / MC) * float(shells.heats.length() - 1));
 
     float heat = shells.heats[heat_id];
     float heat_fit = 2.0 / (1.0 + exp(-heat * 0.02)) - 1.0;

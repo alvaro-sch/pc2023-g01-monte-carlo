@@ -17,7 +17,7 @@
 
 #define MAX_FRAME_TIME ((double) 1.0 / TARGET_FPS)
 
-#define SHELL_COUNT 300
+#define SHELL_COUNT 200
 #define PHOTON_CAP  1<<16
 
 static bool should_quit;
@@ -32,7 +32,7 @@ static struct photon_params params = {
     .microns_per_shell = 50,
 };
 
-const static float colormap[] = {
+static const float colormap[] = {
     #include "inferno512.cmap"
 };
 
