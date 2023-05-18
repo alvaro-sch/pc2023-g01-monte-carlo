@@ -13,6 +13,8 @@
 #define get_rand() (rand() / (float)RAND_MAX)
 #endif
 
+#define PI 3.14159265358f
+
 void photon(const struct photon_params params, float *heats, float *heats_squared) {
     const float albedo = params.mu_s / (params.mu_s + params.mu_a);
     const float shells_per_mfp =
@@ -46,6 +48,11 @@ void photon(const struct photon_params params, float *heats, float *heats_square
 
         weight *= albedo;
 
+        if (weight < 0.001f) { /* roulette */
+            if (get_rand() > 0.1f) break;
+            weight /= 0.1f;
+        }
+
         /* New direction, rejection method */
         float xi1, xi2;
         do {
@@ -57,10 +64,5 @@ void photon(const struct photon_params params, float *heats, float *heats_square
         u = 2.0f * t - 1.0f;
         v = xi1 * sqrtf((1.0f - u * u) / t);
         w = xi2 * sqrtf((1.0f - u * u) / t);
-
-        if (weight < 0.001f) { /* roulette */
-            if (get_rand() > 0.1f) break;
-            weight /= 0.1f;
-        }
     }
 }
