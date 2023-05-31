@@ -1,8 +1,9 @@
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
-#include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "photon.h"
 #include "shader.h"
@@ -24,6 +25,7 @@ static bool should_quit;
 static int width, height;
 static int remaining_photons;
 static float heats[SHELL_COUNT], _heats2[SHELL_COUNT];
+static uint32_t rand_state[4] = {1, 2, 3, 4};
 
 static struct photon_params params = {
     .mu_a = 2.0,
@@ -84,7 +86,7 @@ void update(void) {
         --remaining_photons;
         --remaining_photons_in_frame;
 
-        photon(params, heats, _heats2);
+        photon(params, heats, _heats2, rand_state);
     }
 
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(heats), heats);

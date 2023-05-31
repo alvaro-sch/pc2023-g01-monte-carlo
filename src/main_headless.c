@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     float mu_s = strtof(argv[4], NULL);
 
     srand(seed);
-    xoshiro_set_seed((uint32_t[4]){rand(), rand(), rand(), rand()});
+    uint32_t rand_state[4] = { rand(), rand(), rand(), rand() };
 
     const struct photon_params params = {
         .microns_per_shell = microns_per_shell,
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 
     double start = wtime();
     for (unsigned int i = 0; i < photons; ++i) {
-        photon(params, heats, heats2);
+        photon(params, heats, heats2, rand_state);
     }
     double end = wtime();
 

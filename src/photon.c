@@ -6,16 +6,16 @@
 #include "xoshiro.h"
 
 #ifdef RAND_XOSHIROI
-#define get_rand() (xoshiro_next_u32() / (float)XOSHIRO_RAND_MAX)
+#define get_rand(state) (xoshiro_next_u32(state) / (float)XOSHIRO_RAND_MAX)
 #elif defined(RAND_XOSHIROF)
-#define get_rand() (xoshiro_next_f32())
+#define get_rand(state) (xoshiro_next_f32(state))
 #else
-#define get_rand() (rand() / (float)RAND_MAX)
+#define get_rand(_state) (rand() / (float)RAND_MAX)
 #endif
 
 #define PI 3.14159265358f
 
-void photon(const struct photon_params params, float *heats, float *heats_squared) {
+void photon(const struct photon_params params, float *heats, float *heats_squared, uint32_t rand_state[4]) {
     const float albedo = params.mu_s / (params.mu_s + params.mu_a);
     const float shells_per_mfp =
         1e4 / params.microns_per_shell / (params.mu_a + params.mu_s);
@@ -30,7 +30,7 @@ void photon(const struct photon_params params, float *heats, float *heats_square
     float weight = 1.0f;
 
     for (;;) {
-        float t = -logf(get_rand()); /* move */
+        float t = -logf(get_rand(rand_state)); /* move */
         x += t * u;
         y += t * v;
         z += t * w;
@@ -49,15 +49,15 @@ void photon(const struct photon_params params, float *heats, float *heats_square
         weight *= albedo;
 
         if (weight < 0.001f) { /* roulette */
-            if (get_rand() > 0.1f) break;
+            if (get_rand(rand_state) > 0.1f) break;
             weight /= 0.1f;
         }
 
         /* New direction, rejection method */
         float xi1, xi2;
         do {
-            xi1 = 2.0f * get_rand() - 1.0f;
-            xi2 = 2.0f * get_rand() - 1.0f;
+            xi1 = 2.0f * get_rand(rand_state) - 1.0f;
+            xi2 = 2.0f * get_rand(rand_state) - 1.0f;
             t = xi1 * xi1 + xi2 * xi2;
         } while (1.0f < t);
 
