@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -std=c17 -Isrc
+CFLAGS = -Wall -Wextra -std=c17 -Iinclude
 LDFLAGS = -lm
 
 DCGI_LDFLAGS = `pkg-config --libs sdl2 glew`

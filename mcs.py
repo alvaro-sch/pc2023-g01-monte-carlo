@@ -15,10 +15,10 @@ LDFLAGS = ""
 
 # exclusive
 EXC_CFLAGS = {
-    "gcc": "-fopt-info-vec -fopt-info-vec-missed",
-    "clang": "-flto=thin -Rpass=vectorize -Rpass-missed -Rpass-analysis",
-    "icx": "-flto=thin -Rpass=vectorize -Rpass-missed -Rpass-analysis",
-    "icc": "-diag-disable=10441 -qopt-report-stdout -qopt-report-per-object",
+    "gcc": "",
+    "clang": "-flto=thin",
+    "icx": "-flto=thin",
+    "icc": "",
 }
 EXC_LDFLAGS = {
     "gcc": "",
