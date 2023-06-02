@@ -43,11 +43,9 @@ int main(int argc, char *argv[]) {
     double start = wtime();
     #pragma omp parallel default(none) \
         shared(params, photons) \
-        private(rand_state) \
+        firstprivate(rand_state) \
         reduction(+:heats,heats2)
     {
-        // rand_state[0] = omp_get_thread_num();
-
         #pragma omp for
         for (unsigned int i = 0; i < photons; ++i) {
             photon(params, heats, heats2, rand_state);
