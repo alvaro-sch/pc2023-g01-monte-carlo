@@ -1,5 +1,5 @@
-CFLAGS = -Wall -Wextra -std=c17 -Iinclude
-LDFLAGS = -lm
+CFLAGS = -Wall -Wextra -std=c17 -Iinclude -fopenmp
+LDFLAGS = -lm -fopenmp
 
 DCGI_LDFLAGS = `pkg-config --libs sdl2 glew`
 

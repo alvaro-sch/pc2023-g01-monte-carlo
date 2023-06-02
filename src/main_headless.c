@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 
 #include "params.h"
 #include "photon.h"
@@ -34,13 +35,23 @@ int main(int argc, char *argv[]) {
         .mu_s = MU_S,
     };
 
-    uint32_t rand_state[4] = { rand(), rand(), rand(), rand() };
-    float heats[SHELLS] = {0.0};
-    float heats2[SHELLS] = {0.0};
+    float heats[SHELLS] = { 0.0 };
+    float heats2[SHELLS] = { 0.0 };
+
+    uint32_t rand_state[4] = { 0, rand(), rand(), rand() };
 
     double start = wtime();
-    for (unsigned int i = 0; i < photons; ++i) {
-        photon(params, heats, heats2, rand_state);
+    #pragma omp parallel default(none) \
+        shared(params, photons) \
+        private(rand_state) \
+        reduction(+:heats,heats2)
+    {
+        // rand_state[0] = omp_get_thread_num();
+
+        #pragma omp for
+        for (unsigned int i = 0; i < photons; ++i) {
+            photon(params, heats, heats2, rand_state);
+        }
     }
     double end = wtime();
 
