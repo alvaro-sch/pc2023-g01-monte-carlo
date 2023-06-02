@@ -18,7 +18,7 @@ EXC_CFLAGS = {
     "gcc": "",
     "clang": "-flto=thin",
     "icx": "-flto=thin",
-    "icc": "",
+    "icc": "-diag-disable=10441",
 }
 EXC_LDFLAGS = {
     "gcc": "",
@@ -38,7 +38,7 @@ def make():
             f'EXT_LDFLAGS={LDFLAGS} {EXC_LDFLAGS[cc]}',
         ])
 
-DEFAULT_PARAMS = ["101", PHOTON_COUNT, "2.0", "20.0", "50", "0"]
+DEFAULT_PARAMS = [PHOTON_COUNT, "0"]
 
 def bench():
     run = lambda prog: float(subprocess.run(
